@@ -1,0 +1,27 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  user: one
+  provider: MyString
+  external_id: MyString
+  title: MyString
+  url: MyString
+  repo: MyString
+  state: MyString
+  author: MyString
+  created_at_source: 2025-11-21 17:43:55
+  updated_at_source: 2025-11-21 17:43:55
+  merged_at: 2025-11-21 17:43:55
+
+two:
+  user: two
+  provider: MyString
+  external_id: MyString
+  title: MyString
+  url: MyString
+  repo: MyString
+  state: MyString
+  author: MyString
+  created_at_source: 2025-11-21 17:43:55
+  updated_at_source: 2025-11-21 17:43:55
+  merged_at: 2025-11-21 17:43:55

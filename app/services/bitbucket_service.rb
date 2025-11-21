@@ -1,5 +1,5 @@
-require 'net/http'
 require 'json'
+require 'net/http'
 
 class BitbucketService < RepositoryService
   BASE_URL = "https://api.bitbucket.org/2.0"
@@ -8,22 +8,85 @@ class BitbucketService < RepositoryService
     connection = connection_for('bitbucket')
     return [] unless connection
 
-    # Bitbucket API is a bit different, searching across all repos is trickier.
-    # We'll try to find PRs where the user is the author.
-    # Note: Bitbucket API might require username to filter by author properly if not using specific endpoint.
-    # For now, assuming we can list pull requests from a known workspace or just recent activity.
-    # A common pattern is /pullrequests/selected-user
+    all_prs = []
     
-    # Simplified: Fetching from a dashboard endpoint if available or just returning empty for now 
-    # as Bitbucket requires more complex workspace discovery.
-    # Let's try to hit the user's PRs endpoint if it exists, or search.
+    begin
+      # Get workspace (required for Bitbucket)
+      workspace = connection.workspace.presence || connection.username.presence || user.email.split('@').first
+      username = connection.username.presence || user.email.split('@').first
+      
+      if workspace.blank? || username.blank?
+        Rails.logger.warn "Bitbucket workspace or username not configured"
+        return []
+      end
+
+      # Fetch all repositories in the workspace
+      repos = fetch_repositories(workspace, username, connection.access_token)
+      
+      # For each repository, fetch open pull requests
+      repos.each do |repo|
+        repo_slug = repo['slug']
+        prs = fetch_repo_pull_requests(workspace, repo_slug, username, connection.access_token)
+        all_prs.concat(prs)
+      end
+
+      all_prs
+    rescue StandardError => e
+      Rails.logger.error "Bitbucket API Error: #{e.message}"
+      Rails.logger.error e.backtrace.join("\n")
+      []
+    end
+  end
+
+  private
+
+  def fetch_repositories(workspace, username, token)
+    uri = URI("#{BASE_URL}/repositories/#{workspace}?pagelen=100")
+    request = Net::HTTP::Get.new(uri)
+    request.basic_auth(username, token)
     
-    uri = URI("#{BASE_URL}/pullrequests?q=author.uuid=\"#{user.uid}\"") # This is pseudo-code, Bitbucket API is complex
+    response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) do |http|
+      http.request(request)
+    end
+
+    if response.is_a?(Net::HTTPSuccess)
+      data = JSON.parse(response.body)
+      data['values'] || []
+    else
+      Rails.logger.error "Failed to fetch Bitbucket repositories: #{response.code} - #{response.body}"
+      []
+    end
+  end
+
+  def fetch_repo_pull_requests(workspace, repo_slug, username, token)
+    uri = URI("#{BASE_URL}/repositories/#{workspace}/#{repo_slug}/pullrequests?state=OPEN&pagelen=50")
+    request = Net::HTTP::Get.new(uri)
+    request.basic_auth(username, token)
     
-    # Realistically, we might need to list repositories first then PRs, or use a search API.
-    # For this MVP, I'll implement a placeholder that returns an empty list but logs the attempt.
-    
-    Rails.logger.info "Bitbucket fetch not fully implemented due to API complexity without workspace context."
-    [] 
+    response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) do |http|
+      http.request(request)
+    end
+
+    if response.is_a?(Net::HTTPSuccess)
+      data = JSON.parse(response.body)
+      items = data['values'] || []
+      
+      items.map do |item|
+        {
+          provider: 'bitbucket',
+          title: item['title'],
+          url: item['links']&.dig('html', 'href'),
+          repo: "#{workspace}/#{repo_slug}",
+          state: item['state']&.downcase,
+          author: item['author']&.dig('display_name') || item['author']&.dig('username'),
+          created_at: item['created_on'],
+          updated_at: item['updated_on'],
+          merged_at: item['state'] == 'MERGED' ? item['updated_on'] : nil
+        }
+      end
+    else
+      Rails.logger.warn "Failed to fetch PRs for #{workspace}/#{repo_slug}: #{response.code}"
+      []
+    end
   end
 end

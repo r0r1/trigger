@@ -60,10 +60,19 @@ A Ruby on Rails application that collects and displays Pull Requests and Merge R
 
 1.  **Login**: Use one of the social login options on the home page.
 2.  **Configure Connections**: Go to **Settings** and enter your Personal Access Tokens for the providers you want to fetch data from.
-    *   **GitHub**: Generate a PAT with `repo` scope.
+    *   **GitHub**: Generate a PAT with `repo` scope. Uses the official [GitHub MCP Server](https://github.com/github/github-mcp-server).
     *   **GitLab**: Generate a PAT with `read_api` scope.
     *   **Bitbucket**: Generate an App Password or PAT with `pullrequest:read` scope.
-3.  **View Dashboard**: Navigate to the **Dashboard** to see your active Pull Requests.
+3.  **Sync Pull Requests**: Click the "Sync PRs" button on the Dashboard to fetch and store your pull requests from all connected providers.
+4.  **View Dashboard**: Navigate to the **Dashboard** to see your active Pull Requests stored in the database.
+
+## Features
+
+- **Database Storage**: Pull requests are synced and stored in the database for faster access and offline viewing.
+- **MCP Integration**: GitHub integration uses the official Model Context Protocol server for enhanced reliability.
+- **Automatic Deduplication**: PRs are uniquely identified to prevent duplicates during sync.
+- **Real-time Stats**: View counts of total, open, merged, and closed PRs at a glance.
+
 
 ## Callback URIs
 

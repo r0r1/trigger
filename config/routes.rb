@@ -8,6 +8,9 @@ Rails.application.routes.draw do
   
   get 'settings', to: 'settings#index'
   post 'settings/update', to: 'settings#update'
+  post 'settings/test_connection', to: 'settings#test_connection', as: 'test_connection'
+  
+  post 'dashboard/sync', to: 'dashboard#sync', as: 'sync_pull_requests'
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
   # Can be used by load balancers and uptime monitors to verify that the app is live.

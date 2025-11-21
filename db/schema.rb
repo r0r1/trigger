@@ -10,14 +10,40 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_11_21_083129) do
+ActiveRecord::Schema[8.0].define(version: 2025_11_21_114144) do
+  # These are extensions that must be enabled in order to support this database
+  enable_extension "pg_catalog.plpgsql"
+
   create_table "provider_connections", force: :cascade do |t|
     t.integer "user_id", null: false
     t.string "provider"
     t.text "access_token"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "workspace"
+    t.string "username"
+    t.boolean "connected", default: false, null: false
+    t.text "last_error"
     t.index ["user_id"], name: "index_provider_connections_on_user_id"
+  end
+
+  create_table "pull_requests", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "provider"
+    t.string "external_id"
+    t.string "title"
+    t.string "url"
+    t.string "repo"
+    t.string "state"
+    t.string "author"
+    t.datetime "created_at_source"
+    t.datetime "updated_at_source"
+    t.datetime "merged_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["provider", "external_id"], name: "index_pull_requests_on_provider_and_external_id", unique: true
+    t.index ["state"], name: "index_pull_requests_on_state"
+    t.index ["user_id"], name: "index_pull_requests_on_user_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -35,4 +61,5 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_21_083129) do
   end
 
   add_foreign_key "provider_connections", "users"
+  add_foreign_key "pull_requests", "users"
 end
