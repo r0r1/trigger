@@ -1,0 +1,18 @@
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+
+development:
+  <<: *default
+  database: sonic_event_development
+
+test:
+  <<: *default
+  database: sonic_event_test
+
+production:
+  <<: *default
+  database: sonic_event_production
+  username: sonic_event
+  password: <%= ENV["SONIC_EVENT_DATABASE_PASSWORD"] %>
