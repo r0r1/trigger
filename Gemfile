@@ -69,7 +69,7 @@ gem "omniauth-google-oauth2", "~> 0.8.0"
 gem "omniauth-github", "~> 1.4"
 gem "omniauth-bitbucket", "~> 0.0.2"
 gem "omniauth-rails_csrf_protection", "~> 0.1.2"
-gem "jwt", "~> 2.9"
+gem "jwt", "~> 3.1"
 gem "ruby-mcp-client"
 
 gem "pg", "~> 1.6"
