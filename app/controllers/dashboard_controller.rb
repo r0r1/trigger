@@ -7,13 +7,8 @@ class DashboardController < ApplicationController
   end
 
   def sync
-    result = PullRequestSyncService.new(current_user).sync_all
-    
-    if result[:success]
-      flash[:notice] = "Successfully synced #{result[:synced_count]} pull requests!"
-    else
-      flash[:alert] = "Sync failed: #{result[:error]}"
-    end
+    SyncPullRequestsJob.perform_later(current_user.id)
+    flash[:notice] = "Pull request sync started in the background."
     
     redirect_to dashboard_index_path
   end

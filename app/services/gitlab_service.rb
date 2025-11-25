@@ -1,5 +1,6 @@
 require 'net/http'
 require 'json'
+require 'mcp_client'
 
 class GitlabService < RepositoryService
   BASE_URL = "https://gitlab.com/api/v4"
@@ -9,6 +10,14 @@ class GitlabService < RepositoryService
     return [] unless connection
 
     all_mrs = []
+
+    # "mcpServers": {
+    #   "GitLab": {
+    #     "type": "http",
+    #     "url": "https://<gitlab.example.com>/api/v4/mcp"
+    #   }
+    # }
+    client = create_client
 
     # Fetch different scopes of merge requests
     scopes = [
@@ -33,6 +42,18 @@ class GitlabService < RepositoryService
       Rails.logger.error "GitLab API Error: #{e.message}"
       []
     end
+  end
+
+  def create_client
+    client = MCPClient.create_client(
+      mcp_server_configs: [
+        MCPClient.http_config(
+          base_url: "https://mygitlab-dev.ioh.co.id",
+          endpoint: "/api/v4/mcp",
+          headers: { 'Authorization' => 'Bearer glpat-zOJxL_B2AjPDghFzRMeybW86MQp1Om4H.01.0w11ih554' }
+        )
+      ]
+    )
   end
 
   private

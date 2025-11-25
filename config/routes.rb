@@ -7,7 +7,7 @@ Rails.application.routes.draw do
   root "home#index"
   
   get 'settings', to: 'settings#index'
-  post 'settings/update', to: 'settings#update'
+  post 'settings/update', to: 'settings#update', as: 'settings_update'
   post 'settings/test_connection', to: 'settings#test_connection', as: 'test_connection'
   
   post 'dashboard/sync', to: 'dashboard#sync', as: 'sync_pull_requests'

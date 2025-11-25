@@ -22,15 +22,15 @@ class SettingsController < ApplicationController
       end
       
       if connection.save
-        flash[:notice] = "#{provider.titleize} credentials saved. Please test the connection."
+        flash[:notice] = "#{provider.titleize} MCP Server configured. Please test the connection."
       else
-        flash[:alert] = "Failed to update #{provider.titleize} connection."
+        flash[:alert] = "Failed to configure #{provider.titleize} MCP Server."
       end
     else
       # If token is empty, maybe we want to delete the connection?
       # For now, let's just ignore or show error.
       current_user.provider_connections.where(provider: provider).destroy_all
-      flash[:notice] = "#{provider.titleize} connection removed."
+      flash[:notice] = "#{provider.titleize} MCP Server removed."
     end
 
     redirect_to settings_path, turbo: false

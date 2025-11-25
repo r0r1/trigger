@@ -1,4 +1,5 @@
 require 'json'
+require 'mcp_client'
 
 class GithubService < RepositoryService
   BASE_URL = "https://api.github.com"
@@ -9,8 +10,9 @@ class GithubService < RepositoryService
 
     # Use the official GitHub MCP server
     # We need to pass the token as an environment variable
-    client = McpClient.new("npx -y @modelcontextprotocol/server-github", { "GITHUB_PERSONAL_ACCESS_TOKEN" => connection.access_token })
+    # client = M.new("npx -y @modelcontextprotocol/server-github", { "GITHUB_PERSONAL_ACCESS_TOKEN" => connection.access_token })
 
+    client = create_client
     all_prs = []
     
     # Fetch different types of PRs to get comprehensive coverage
@@ -69,5 +71,15 @@ class GithubService < RepositoryService
       Rails.logger.error "GitHub MCP Error: #{e.message}"
       []
     end
+  end
+
+  def create_client
+    MCPClient.create_client(
+      mcp_server_configs: [
+        MCPClient.stdio_config(
+          command: 'npx -y @modelcontextprotocol/server-github", { "GITHUB_PERSONAL_ACCESS_TOKEN" => connection.access_token }'
+        )
+      ]
+    )
   end
 end
