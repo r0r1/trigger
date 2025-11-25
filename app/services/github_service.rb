@@ -77,7 +77,8 @@ class GithubService < RepositoryService
     MCPClient.create_client(
       mcp_server_configs: [
         MCPClient.stdio_config(
-          command: 'npx -y @modelcontextprotocol/server-github", { "GITHUB_PERSONAL_ACCESS_TOKEN" => connection.access_token }'
+          command: 'npx -y @modelcontextprotocol/server-github',
+          env: { "GITHUB_PERSONAL_ACCESS_TOKEN" => connection.access_token }
         )
       ]
     )
