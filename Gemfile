@@ -74,4 +74,4 @@ gem "ruby-mcp-client"
 
 gem "pg", "~> 1.6"
 
-gem "dotenv-rails", "~> 3.1"
+gem "dotenv-rails", "~> 3.2"
